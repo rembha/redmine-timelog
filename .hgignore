@@ -1,0 +1,4 @@
+syntax: glob
+config.rb
+tasks.csv
+*.swp
