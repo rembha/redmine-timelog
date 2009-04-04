@@ -3,8 +3,9 @@
 require 'rubygems'
 require 'mechanize'
 require 'csv'
-require 'config'
+require 'yaml'
 
+CONFIG_FILE = "config.yml"
 LOGIN_URL = "/login"
 TIMELOG_URL = "/timelog/edit?issue_id="
 
@@ -33,20 +34,14 @@ class Redmine
   end
 end
 
-def parse_time(time)
-  if time =~ /^([0-9]+:[0-9]+):/
-    $1
-  else
-    time
-  end
-end
-
-redmine = Redmine.new(REDMINE_URL, USERNAME, PASSWORD)
+config = open(CONFIG_FILE) { |file| YAML.load(file) }
+redmine = Redmine.new(config['redmine_url'], config['username'],
+                      config['password'])
 redmine.login
-file = File.new(CSV_FILE, 'rb')
+file = File.new(config['csv_file'], 'rb')
 csv = CSV::Reader.parse(file) do |row|
   begin
-    redmine.timelog row[1], row[0], parse_time(row[2])
+    redmine.timelog(row[1], row[0], row[2])
   rescue Exception
     print "ERROR: #{row.join ','}"
     raise
