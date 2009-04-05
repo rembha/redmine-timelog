@@ -8,6 +8,7 @@ require 'yaml'
 CONFIG_FILE = "config.yml"
 LOGIN_URL = "/login"
 TIMELOG_URL = "/timelog/edit?issue_id="
+DATE_FORMAT = '%d/%m/%y'
 
 class Redmine
   def initialize(url, username, password)
@@ -42,6 +43,14 @@ def parse_time(time)
   end
 end
 
+def parse_date(date)
+  begin
+    Date.strptime(date, DATE_FORMAT).to_s
+  rescue ArgumentError
+    date
+  end
+end
+
 config = open(CONFIG_FILE) { |file| YAML.load(file) }
 redmine = Redmine.new(config['redmine_url'], config['username'],
                       config['password'])
@@ -49,7 +58,7 @@ redmine.login
 file = File.new(config['csv_file'], 'rb')
 csv = CSV::Reader.parse(file) do |row|
   begin
-    redmine.timelog row[1], row[0], parse_time(row[2])
+    redmine.timelog row[1], parse_date(row[0]), parse_time(row[2])
   rescue Exception
     print "ERROR: #{row.join ','}"
     raise
