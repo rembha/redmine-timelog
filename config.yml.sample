@@ -3,3 +3,6 @@ redmine:
     url: http://www.redmine.org
     username: myuser
     password: mypassword
+substitutions:
+    /.*#([0-9]+)/: $1
+    System adminitration: 328

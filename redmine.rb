@@ -51,6 +51,15 @@ def parse_date(date)
   end
 end
 
+def parse_task(task, substitutions)
+  substitutions.each do |key, value|
+    if key =~ /\/.*\// and task.match(key[1..-2]) or task == key
+      return eval value.to_s
+    end
+  end
+  task
+end
+
 config = open(CONFIG_FILE) { |file| YAML.load(file) }
 redmine = Redmine.new(config['redmine']['url'], config['redmine']['username'],
                       config['redmine']['password'])
@@ -58,7 +67,7 @@ redmine.login
 file = File.new(config['csv_file'], 'rb')
 csv = CSV::Reader.parse(file) do |row|
   begin
-    redmine.timelog row[1], parse_date(row[0]), parse_time(row[2])
+    redmine.timelog parse_task(row[1], config['substitutions']), parse_date(row[0]), parse_time(row[2])
   rescue Exception
     print "ERROR: #{row.join ','}"
     raise
