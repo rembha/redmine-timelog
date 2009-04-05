@@ -52,8 +52,8 @@ def parse_date(date)
 end
 
 config = open(CONFIG_FILE) { |file| YAML.load(file) }
-redmine = Redmine.new(config['redmine_url'], config['username'],
-                      config['password'])
+redmine = Redmine.new(config['redmine']['url'], config['redmine']['username'],
+                      config['redmine']['password'])
 redmine.login
 file = File.new(config['csv_file'], 'rb')
 csv = CSV::Reader.parse(file) do |row|

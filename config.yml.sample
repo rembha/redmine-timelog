@@ -1,4 +1,5 @@
-redmine_url: http://www.redmine.org
-username: myuser
-password: mypassword
 csv_file: tasks.csv
+redmine:
+    url: http://www.redmine.org
+    username: myuser
+    password: mypassword
