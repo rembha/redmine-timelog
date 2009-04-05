@@ -33,12 +33,20 @@ class Redmine
   end
 end
 
+def parse_time(time)
+  if time =~ /^([0-9]+:[0-9]+):/
+    $1
+  else
+    time
+  end
+end
+
 redmine = Redmine.new(REDMINE_URL, USERNAME, PASSWORD)
 redmine.login
 file = File.new(CSV_FILE, 'rb')
 csv = CSV::Reader.parse(file) do |row|
   begin
-    redmine.timelog(row[1], row[0], row[2])
+    redmine.timelog row[1], row[0], parse_time(row[2])
   rescue Exception
     print "ERROR: #{row.join ','}"
     raise
