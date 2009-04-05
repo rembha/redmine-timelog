@@ -1,4 +1,0 @@
-REDMINE_URL = 'http://www.redmine.org'
-USERNAME = 'myuser'
-PASSWORD = 'mypassword'
-CSV_FILE = 'tasks.csv'
