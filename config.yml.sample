@@ -5,4 +5,4 @@ redmine:
     password: mypassword
 substitutions:
     /.*#([0-9]+)/: $1
-    System adminitration: 328
+    System administration: 328

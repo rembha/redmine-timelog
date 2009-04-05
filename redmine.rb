@@ -53,7 +53,7 @@ end
 
 def parse_task(task, substitutions)
   substitutions.each do |key, value|
-    if key =~ /\/.*\// and task.match(key[1..-2]) or task == key
+    if key =~ /^\/.*\/$/ and task.match(key[1..-2]) or task == key
       return eval value.to_s
     end
   end
@@ -67,7 +67,8 @@ redmine.login
 file = File.new(config['csv_file'], 'rb')
 csv = CSV::Reader.parse(file) do |row|
   begin
-    redmine.timelog parse_task(row[1], config['substitutions']), parse_date(row[0]), parse_time(row[2])
+    redmine.timelog parse_task(row[1], config['substitutions']),
+                    parse_date(row[0]), parse_time(row[2])
   rescue Exception
     print "ERROR: #{row.join ','}"
     raise
