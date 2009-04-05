@@ -1,4 +1,4 @@
 syntax: glob
-config.rb
+config.yml
 tasks.csv
 *.swp
