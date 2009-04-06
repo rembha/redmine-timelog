@@ -6,3 +6,6 @@ redmine:
 substitutions:
     /.*#([0-9]+)/: $1
     System administration: 328
+ignore:
+    - rest
+    - /\[private\]/

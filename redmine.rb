@@ -60,6 +60,15 @@ def parse_task(task, substitutions)
   task
 end
 
+def task_ignored?(task, ignores)
+  ignores.each do |ignore|
+    if ignore =~ /^\/.*\/$/ and task.match(ignore[1..-2]) or task == ignore
+      return true
+    end
+  end
+  false
+end
+
 config = open(CONFIG_FILE) { |file| YAML.load(file) }
 redmine = Redmine.new(config['redmine']['url'], config['redmine']['username'],
                       config['redmine']['password'])
@@ -67,8 +76,10 @@ redmine.login
 file = File.new(config['csv_file'], 'rb')
 csv = CSV::Reader.parse(file) do |row|
   begin
-    redmine.timelog parse_task(row[1], config['substitutions']),
-                    parse_date(row[0]), parse_time(row[2])
+    if not task_ignored? row[1], config['ignore']
+      redmine.timelog parse_task(row[1], config['substitutions']),
+                      parse_date(row[0]), parse_time(row[2])
+    end
   rescue Exception
     print "ERROR: #{row.join ','}"
     raise
