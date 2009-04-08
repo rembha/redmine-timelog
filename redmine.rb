@@ -35,38 +35,46 @@ class Redmine
   end
 end
 
-def parse_time(time)
-  if time =~ /^([0-9]+:[0-9]+):/
-    $1
-  else
-    time
+class Row
+  def initialize(row, substitutions, ignores)
+    @row = row
+    @substitutions = substitutions
+    @ignores = ignores
   end
-end
 
-def parse_date(date)
-  begin
-    Date.strptime(date, DATE_FORMAT).to_s
-  rescue ArgumentError
-    date
-  end
-end
-
-def parse_task(task, substitutions)
-  substitutions.each do |key, value|
-    if key =~ /^\/.*\/$/ and task.match(key[1..-2]) or task == key
-      return eval value.to_s
+  def time()
+    if @row[2] =~ /^([0-9]+:[0-9]+):/
+      $1
+    else
+      @row[2]
     end
   end
-  task
-end
 
-def task_ignored?(task, ignores)
-  ignores.each do |ignore|
-    if ignore =~ /^\/.*\/$/ and task.match(ignore[1..-2]) or task == ignore
-      return true
+  def date()
+    begin
+      Date.strptime(@row[0], DATE_FORMAT).to_s
+    rescue ArgumentError
+      @row[0]
     end
   end
-  false
+
+  def task()
+    @substitutions.each do |key, value|
+      if key =~ /^\/.*\/$/ and @row[1].match(key[1..-2]) or @row[1] == key
+        return eval value.to_s
+      end
+    end
+    @row[1]
+  end
+
+  def ignored?()
+    @ignores.each do |ignore|
+      if ignore =~ /^\/.*\/$/ and @row[1].match(ignore[1..-2]) or @row[1] == ignore
+        return true
+      end
+    end
+    false
+  end
 end
 
 config = open(CONFIG_FILE) { |file| YAML.load(file) }
@@ -76,9 +84,9 @@ redmine.login
 file = File.new(config['csv_file'], 'rb')
 csv = CSV::Reader.parse(file) do |row|
   begin
-    if not task_ignored? row[1], config['ignore']
-      redmine.timelog parse_task(row[1], config['substitutions']),
-                      parse_date(row[0]), parse_time(row[2])
+    entry = Row.new(row, config['substitutions'], config['ignore'])
+    if not entry.ignored?
+      redmine.timelog entry.task, entry.date, entry.time
     end
   rescue Exception
     print "ERROR: #{row.join ','}"
