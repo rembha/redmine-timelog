@@ -36,9 +36,9 @@ class Redmine
 end
 
 class Row
-  def initialize(row, substitutions, ignores)
+  def initialize(row, replaces, ignores)
     @row = row
-    @substitutions = substitutions
+    @replaces = replaces
     @ignores = ignores
   end
 
@@ -59,7 +59,7 @@ class Row
   end
 
   def task()
-    @substitutions.each do |key, value|
+    @replaces.each do |key, value|
       if key =~ /^\/.*\/$/ and @row[1].match(key[1..-2]) or @row[1] == key
         return eval value.to_s
       end
@@ -84,7 +84,7 @@ redmine.login
 file = File.new(config['csv_file'], 'rb')
 csv = CSV::Reader.parse(file) do |row|
   begin
-    entry = Row.new(row, config['substitutions'], config['ignore'])
+    entry = Row.new(row, config['replace'], config['ignore'])
     if not entry.ignored?
       redmine.timelog entry.task, entry.date, entry.time
     end

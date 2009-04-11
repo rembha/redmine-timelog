@@ -3,7 +3,7 @@ redmine:
     url: http://www.redmine.org
     username: myuser
     password: mypassword
-substitutions:
+replace:
     /.*#([0-9]+)/: $1
     System administration: 328
 ignore:
