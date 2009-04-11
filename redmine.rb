@@ -59,18 +59,22 @@ class Row
   end
 
   def task()
-    @replaces.each do |key, value|
-      if key =~ /^\/.*\/$/ and @row[1].match(key[1..-2]) or @row[1] == key
-        return eval value.to_s
+    if @replaces
+      @replaces.each do |key, value|
+        if key =~ /^\/.*\/$/ and @row[1].match(key[1..-2]) or @row[1] == key
+          return eval value.to_s
+        end
       end
     end
     @row[1]
   end
 
   def ignored?()
-    @ignores.each do |ignore|
-      if ignore =~ /^\/.*\/$/ and @row[1].match(ignore[1..-2]) or @row[1] == ignore
-        return true
+    if @ignores
+      @ignores.each do |ignore|
+        if ignore =~ /^\/.*\/$/ and @row[1].match(ignore[1..-2]) or @row[1] == ignore
+          return true
+        end
       end
     end
     false
