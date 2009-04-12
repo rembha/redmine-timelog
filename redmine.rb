@@ -79,19 +79,25 @@ class Row
   end
 end
 
-config = open(CONFIG_FILE) { |file| YAML.load(file) }
-redmine = Redmine.new config['redmine']['url'], config['redmine']['username'],
-                      config['redmine']['password']
-redmine.login
-file = File.new config['csv_file'], 'rb'
-csv = CSV::Reader.parse(file) do |row|
-  begin
-    entry = Row.new row, config['replace'], config['ignore']
-    if not entry.ignored?
-      redmine.timelog entry.task, entry.date, entry.time
+def run
+  config = open(CONFIG_FILE) { |file| YAML.load(file) }
+  redmine = Redmine.new config['redmine']['url'], config['redmine']['username'],
+                        config['redmine']['password']
+  redmine.login
+  file = File.new config['csv_file'], 'rb'
+  csv = CSV::Reader.parse(file) do |row|
+    begin
+      entry = Row.new row, config['replace'], config['ignore']
+      if not entry.ignored?
+        redmine.timelog entry.task, entry.date, entry.time
+      end
+    rescue Exception
+      print "ERROR: #{row.join ','}"
+      raise
     end
-  rescue Exception
-    print "ERROR: #{row.join ','}"
-    raise
   end
+end
+
+if __FILE__ == $0
+  run
 end
