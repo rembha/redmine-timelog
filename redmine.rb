@@ -42,7 +42,7 @@ class Row
     @ignores = ignores
   end
 
-  def time()
+  def time
     if @row[2] =~ /^([0-9]+:[0-9]+):/
       $1
     else
@@ -50,15 +50,13 @@ class Row
     end
   end
 
-  def date()
-    begin
-      Date.strptime(@row[0], DATE_FORMAT).to_s
-    rescue ArgumentError
-      @row[0]
-    end
+  def date
+    Date.strptime(@row[0], DATE_FORMAT).to_s
+  rescue ArgumentError
+    @row[0]
   end
 
-  def task()
+  def task
     if @replaces
       @replaces.each do |key, value|
         if key =~ /^\/.*\/$/ and @row[1].match(key[1..-2]) or @row[1] == key
@@ -69,7 +67,7 @@ class Row
     @row[1]
   end
 
-  def ignored?()
+  def ignored?
     if @ignores
       @ignores.each do |ignore|
         if ignore =~ /^\/.*\/$/ and @row[1].match(ignore[1..-2]) or @row[1] == ignore
@@ -82,13 +80,13 @@ class Row
 end
 
 config = open(CONFIG_FILE) { |file| YAML.load(file) }
-redmine = Redmine.new(config['redmine']['url'], config['redmine']['username'],
-                      config['redmine']['password'])
+redmine = Redmine.new config['redmine']['url'], config['redmine']['username'],
+                      config['redmine']['password']
 redmine.login
-file = File.new(config['csv_file'], 'rb')
+file = File.new config['csv_file'], 'rb'
 csv = CSV::Reader.parse(file) do |row|
   begin
-    entry = Row.new(row, config['replace'], config['ignore'])
+    entry = Row.new row, config['replace'], config['ignore']
     if not entry.ignored?
       redmine.timelog entry.task, entry.date, entry.time
     end
