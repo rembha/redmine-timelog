@@ -3,7 +3,7 @@
 require 'test/unit'
 require 'redmine'
 
-class RowUnitTests < Test::Unit::TestCase
+class RowParserUnitTests < Test::Unit::TestCase
   def setup
     @config = {
       'replace'  => {
@@ -22,34 +22,37 @@ class RowUnitTests < Test::Unit::TestCase
       ['2009-04-13', 'none',         '08:23'],
       ['2009-04-13', 'ignore: test', '09:36:20']
     ]
+    @entry = RowParser.new @config['replace'], @config['ignore']
   end
 
   def test_should_not_crash_if_ignore_is_not_present
+    entry = RowParser.new @config['replace'], nil
     assert_nothing_raised do
-      row = Row.new ['date', 'task', 'time'], @config['replace'], nil
-      row.ignored?
+      entry.row = ['date', 'task', 'time']
+      entry.ignored?
     end
   end
 
   def test_should_not_crash_if_replace_is_not_present
+    entry = RowParser.new nil, @config['ignore']
     assert_nothing_raised do
-      row = Row.new ['date', 'task', 'time'], nil, @config['ignore']
-      row.ignored?
+      entry.row = ['date', 'task', 'time']
+      entry.ignored?
     end
   end
 
   def test_should_ignore_some_rows
     result = @rows.collect do |row|
-      entry = Row.new row, @config['replace'], @config['ignore']
-      entry.ignored?
+      @entry.row = row
+      @entry.ignored?
     end
     assert_equal [false, false, false, true, true], result
   end
 
   def test_should_parse_dates
     result = @rows.collect do |row|
-      entry = Row.new row, @config['replace'], @config['ignore']
-      entry.date
+      @entry.row = row
+      @entry.date
     end
     assert_equal ['2009-04-10', '2009-04-11', '2009-04-12', '2009-04-13',
                   '2009-04-13'], result
@@ -57,16 +60,16 @@ class RowUnitTests < Test::Unit::TestCase
 
   def test_should_parse_times
     result = @rows.collect do |row|
-      entry = Row.new row, @config['replace'], @config['ignore']
-      entry.time
+      @entry.row = row
+      @entry.time
     end
     assert_equal ['12:58', '16:01', '15:00', '08:23', '09:36'], result
   end
 
   def test_should_replace_some_rows
     result = @rows.collect do |row|
-      entry = Row.new row, @config['replace'], @config['ignore']
-      entry.task
+      @entry.row = row
+      @entry.task
     end
     assert_equal ['27', 'not ignore:', 13, 'none', 'ignore: test'], result
   end

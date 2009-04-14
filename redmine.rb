@@ -35,9 +35,10 @@ class Redmine
   end
 end
 
-class Row
-  def initialize(row, replaces, ignores)
-    @row = row
+class RowParser
+  attr_accessor :row
+
+  def initialize(replaces, ignores)
     @replaces = replaces
     @ignores = ignores
   end
@@ -79,15 +80,12 @@ class Row
   end
 end
 
-def run
-  config = open(CONFIG_FILE) { |file| YAML.load(file) }
-  redmine = Redmine.new config['redmine']['url'], config['redmine']['username'],
-                        config['redmine']['password']
+def run(csv, entry, redmine)
   redmine.login
   file = File.new config['csv_file'], 'rb'
   csv = CSV::Reader.parse(file) do |row|
     begin
-      entry = Row.new row, config['replace'], config['ignore']
+      entry.row = row
       if not entry.ignored?
         redmine.timelog entry.task, entry.date, entry.time
       end
@@ -98,6 +96,15 @@ def run
   end
 end
 
+def go
+  config = open(CONFIG_FILE) { |file| YAML.load(file) }
+  file = File.new config['csv_file'], 'rb'
+  parser = RowParser.new config['replace'], config['ignore']
+  redmine = Redmine.new config['redmine']['url'], config['redmine']['username'],
+                        config['redmine']['password']
+  run file, parser, redmine
+end
+
 if __FILE__ == $0
-  run
+  go
 end
