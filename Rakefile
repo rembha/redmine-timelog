@@ -4,6 +4,6 @@ require 'rake/testtask'
 task :default => [:test]
 
 Rake::TestTask.new do |t|
-  t.test_files = ['test.rb']
+  t.pattern = 'test/*_test.rb'
   t.warning = true
 end

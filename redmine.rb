@@ -80,10 +80,17 @@ class RowParser
   end
 end
 
+def each_row(csv)
+  if csv.is_a? File
+    CSV::Reader.parse(csv) { |row| yield row }
+  elsif csv.is_a? Array
+    csv.each { |row| yield row }
+  end
+end
+
 def run(csv, entry, redmine)
   redmine.login
-  file = File.new config['csv_file'], 'rb'
-  csv = CSV::Reader.parse(file) do |row|
+  each_row(csv) do |row|
     begin
       entry.row = row
       if not entry.ignored?

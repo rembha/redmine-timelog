@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 require 'test/unit'
-require 'redmine'
+require File.dirname(__FILE__) + '/../redmine'
 
 class RowParserUnitTests < Test::Unit::TestCase
   def setup
