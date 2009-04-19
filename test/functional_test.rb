@@ -40,12 +40,34 @@ class FunctionalTests < Test::Unit::TestCase
   def test_parsing
     parser = RowParser.new @config['replace'], @config['ignore']
     redmine = RedmineSpy.new
-    Object.send :run, @rows, parser, redmine
+    Object.send :parse, @rows, parser, redmine
     assert_equal [
       [:login],
       [:timelog, '27',          '2009-04-10', '12:58'],
       [:timelog, 'not ignore:', '2009-04-11', '16:01'],
       [:timelog, 13,            '2009-04-12', '15:00']
     ], redmine.invocations
+  end
+
+  def capture
+    stdout = $stdout
+    $stdout = StringIO.new
+    begin
+      yield
+    ensure
+      out = $stdout.string
+      $stdout = stdout
+      return out
+    end
+  end
+
+  def test_dry_run
+    out = capture { Object.send :run, @rows, @config, { 'dry-run' => true} }
+    expected = <<EOF
+2009-04-10,27,12:58
+2009-04-11,not ignore:,16:01
+2009-04-12,13,15:00
+EOF
+    assert_equal expected, out
   end
 end
