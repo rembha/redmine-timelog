@@ -8,6 +8,7 @@ require 'rubygems'
 require 'mechanize'
 require 'csv'
 require 'yaml'
+require 'optparse'
 
 CONFIG_FILE = "config.yml"
 LOGIN_URL = "/login"
@@ -36,6 +37,15 @@ class Redmine
     form.field_with(:name => 'time_entry[spent_on]').value = date
     form.field_with(:name => 'time_entry[hours]').value = time
     form.click_button
+  end
+end
+
+class DryRedmine
+  def login
+  end
+
+  def timelog(issue, date, time)
+    puts "#{date},#{issue},#{time}"
   end
 end
 
@@ -92,7 +102,25 @@ def each_row(csv)
   end
 end
 
-def run(csv, entry, redmine)
+def parse_args
+  options = { 'dry-run' => false }
+  OptionParser.new do |parse|
+    parse.banner = "Usage: #{$0} [OPTION]..."
+    parse.separator nil
+    parse.separator 'Options:'
+    parse.on('-n', '--dry-run', 'Do nothing, just print out the timelog ' +
+             'entries that will be created') do
+      options['dry-run'] = true
+    end
+    parse.on_tail('-h', '--help', 'Display this help message') do
+      puts parse
+      exit
+    end
+  end.parse!
+  options
+end
+
+def parse(csv, entry, redmine)
   redmine.login
   each_row(csv) do |row|
     begin
@@ -107,13 +135,23 @@ def run(csv, entry, redmine)
   end
 end
 
+def run(csv, config, options)
+  parser = RowParser.new config['replace'], config['ignore']
+  if options['dry-run']
+    redmine = DryRedmine.new
+  else
+    redmine = Redmine.new config['redmine']['url'],
+                          config['redmine']['username'],
+                          config['redmine']['password']
+  end
+  parse csv, parser, redmine
+end
+
 def go
   config = open(CONFIG_FILE) { |file| YAML.load(file) }
-  file = File.new config['csv_file'], 'rb'
-  parser = RowParser.new config['replace'], config['ignore']
-  redmine = Redmine.new config['redmine']['url'], config['redmine']['username'],
-                        config['redmine']['password']
-  run file, parser, redmine
+  csv = open config['csv_file'], 'rb'
+  options = parse_args
+  run csv, config, options
 end
 
 if __FILE__ == $0
