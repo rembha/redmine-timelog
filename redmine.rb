@@ -75,7 +75,7 @@ class RowParser
     if @replaces
       @replaces.each do |key, value|
         if key =~ /^\/.*\/$/ and @row[1].match(key[1..-2]) or @row[1] == key
-          return eval value.to_s
+          return (eval value.to_s).to_s
         end
       end
     end

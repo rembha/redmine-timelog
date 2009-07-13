@@ -75,6 +75,6 @@ class RowParserUnitTests < Test::Unit::TestCase
       @entry.row = row
       @entry.task
     end
-    assert_equal ['27', 'not ignore:', 13, 'none', 'ignore: test'], result
+    assert_equal ['27', 'not ignore:', '13', 'none', 'ignore: test'], result
   end
 end

@@ -49,7 +49,7 @@ class FunctionalTests < Test::Unit::TestCase
       [:login],
       [:timelog, '27',          '2009-04-10', '12:58'],
       [:timelog, 'not ignore:', '2009-04-11', '16:01'],
-      [:timelog, 13,            '2009-04-12', '15:00']
+      [:timelog, '13',          '2009-04-12', '15:00']
     ], redmine.invocations
   end
 
