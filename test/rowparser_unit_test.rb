@@ -20,11 +20,11 @@ class RowParserUnitTests < Test::Unit::TestCase
       ]
     }
     @rows = [
-      ['10/04/09',   '#27: fix bug', '12:58:43'],
-      ['11/04/09',   'not ignore:',  '16:01:00'],
-      ['2009-04-12', 'thirteen',     '15:00'],
-      ['2009-04-13', 'none',         '08:23'],
-      ['2009-04-13', 'ignore: test', '09:36:20']
+      ['10/04/09',   '#27: fix bug', nil, nil, nil, '12:58:43'],
+      ['11/04/09',   'not ignore:',  nil, nil, nil, '16:01:00'],
+      ['2009-04-12', 'thirteen',     nil, nil, nil, '15:00'],
+      ['2009-04-13', 'none',         nil, nil, nil, '08:23'],
+      ['2009-04-13', 'ignore: test', nil, nil, nil, '09:36:20']
     ]
     @entry = RowParser.new @config['replace'], @config['ignore']
   end

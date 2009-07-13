@@ -58,10 +58,10 @@ class RowParser
   end
 
   def time
-    if @row[2] =~ /^([0-9]+:[0-9]+):/
+    if @row[5] =~ /^([0-9]+:[0-9]+):/
       $1
     else
-      @row[2]
+      @row[5]
     end
   end
 
